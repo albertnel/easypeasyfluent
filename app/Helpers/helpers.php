@@ -35,7 +35,15 @@ if (!function_exists('runBackgroundJob')) {
         // Log the command for debugging
         Log::debug('Running background job command: ' . implode(' ', $command));
 
-        $process = new Process($command);
+        if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
+            // Windows
+            $command = array_merge(['start', '/B'], $command);
+            $process = new Process($command);
+        } else {
+            // Linux/Unix
+            $commandString = implode(' ', array_map('escapeshellarg', $command)) . ' > /dev/null 2>&1 &';
+            $process = Process::fromShellCommandline($commandString);
+        }
 
         try {
             $process->run();
