@@ -20,7 +20,7 @@ if ($argc < 3) {
 
 $className = $argv[1];
 $methodName = $argv[2];
-$params = isset($argv[3]) ? array_map('trim', explode(',', $argv[3])) : [];
+$params = isset($argv[3]) ? array_map('trim', explode(',', trim($argv[3], '"'))) : [];
 
 // Log file path
 $logFile = __DIR__ . '/job_logs.txt';
