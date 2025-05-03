@@ -4,6 +4,21 @@ use Symfony\Component\Process\Process;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Illuminate\Support\Facades\Log;
 
+if (!function_exists('writeLogMessage')) {
+    /**
+     * Write a log message to a specified file.
+     *
+     * @param string $message The log message.
+     * @param string $logFile The path to the log file.
+     * @return void
+     */
+    function writeLogMessage($message, $logFile)
+    {
+        $timestamp = date('Y-m-d H:i:s');
+        file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
+    }
+}
+
 if (!function_exists('runBackgroundJob')) {
     /**
      * Run a background job script.
@@ -15,13 +30,12 @@ if (!function_exists('runBackgroundJob')) {
      */
     function runBackgroundJob($class, $method, $params = [])
     {
-        // Find the PHP binary path dynamically
-        /*$phpBinary = trim(shell_exec('which php'));
+        $phpBinary = config('easypeasyfluent.php_binary');
         if (!$phpBinary) {
-            Log::error('PHP binary not found.');
-            throw new RuntimeException('PHP binary not found.');
-        }*/
-        $phpBinary = '/Users/albertnel/Library/Application Support/Herd/bin//php';
+            $errorMessage = 'PHP binary path is not configured.';
+            writeLogMessage('ERROR: ' . $errorMessage, storage_path('logs/background_jobs_errors.log'));
+            throw new RuntimeException($errorMessage);
+        } // Use the configured path or fallback to PHP_BINARY
 
         $paramString = implode(',', $params);
         $command = [
@@ -32,8 +46,7 @@ if (!function_exists('runBackgroundJob')) {
             $paramString,
         ];
 
-        // Log the command for debugging
-        Log::debug('Running background job command: ' . implode(' ', $command));
+        writeLogMessage('RUNNING: ' . implode(' ', $command), storage_path('logs/background_jobs.log'));
 
         if (strncasecmp(PHP_OS, 'WIN', 3) === 0) {
             // Windows
@@ -50,22 +63,17 @@ if (!function_exists('runBackgroundJob')) {
 
             // Check if the process was successful
             if (!$process->isSuccessful()) {
+                writeLogMessage('FAILED: ' . $process->getErrorOutput(), storage_path('logs/background_jobs.log'));
                 throw new ProcessFailedException($process);
             }
 
-            // Log the output for debugging
+            // Log the output
             $output = $process->getOutput();
-            Log::info('Background job output: ' . $output);
+            writeLogMessage('COMPLETED: ' . implode(' ', $command), storage_path('logs/background_jobs.log'));
         } catch (ProcessFailedException $e) {
-            $errorMessage = 'Failed to run background job: ' . $e->getMessage();
-            Log::error($errorMessage);
-            $errorLogPath = storage_path('logs/background_jobs_errors.log');
-            file_put_contents($errorLogPath, '[' . now() . '] ' . $errorMessage . PHP_EOL, FILE_APPEND);
+            writeLogMessage('FAILED: Process failed. ' . $e->getMessage(), storage_path('logs/background_jobs_errors.log'));
         } catch (Exception $e) {
-            $errorMessage = 'Unexpected error in background job: ' . $e->getMessage();
-            Log::error($errorMessage);
-            $errorLogPath = storage_path('logs/background_jobs_errors.log');
-            file_put_contents($errorLogPath, '[' . now() . '] ' . $errorMessage . PHP_EOL, FILE_APPEND);
+            writeLogMessage('FAILED: Unexpected error. ' . $e->getMessage(), storage_path('logs/background_jobs_errors.log'));
         }
     }
 }

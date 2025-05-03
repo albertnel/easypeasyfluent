@@ -22,20 +22,42 @@ $className = $argv[1];
 $methodName = $argv[2];
 $params = isset($argv[3]) ? array_map('trim', explode(',', trim($argv[3], '"'))) : [];
 
-// Log file path
-$logFile = __DIR__ . '/job_logs.txt';
+// Sanitize inputs
+$className = filter_var($className, FILTER_SANITIZE_SPECIAL_CHARS);
+$methodName = filter_var($methodName, FILTER_SANITIZE_SPECIAL_CHARS);
 
-// Function to log messages
-function logMessage($message, $logFile)
-{
-    $timestamp = date('Y-m-d H:i:s');
-    file_put_contents($logFile, "[$timestamp] $message\n", FILE_APPEND);
+// Validate class name format
+if (!preg_match('/^[A-Za-z0-9\\\\]+$/', $className)) {
+    writeLogMessage('ERROR: Invalid class name format: ' . $className, storage_path('logs/background_jobs_errors.log'));
+    throw new Exception("Invalid class name format: '$className'.");
 }
 
+// Validate method name format
+if (!preg_match('/^[A-Za-z0-9_]+$/', $methodName)) {
+    writeLogMessage('ERROR: Invalid method name format: ' . $methodName, storage_path('logs/background_jobs_errors.log'));
+    throw new Exception("Invalid method name format: '$methodName'.");
+}
+
+// Load allowed jobs from the configuration file
+$allowedJobs = config('background-jobs.allowed_jobs');
+
 try {
+    // Validate the class name
+    if (!isset($allowedJobs[$className])) {
+        writeLogMessage('ERROR: Class ' . $className . ' is not allowed.', storage_path('logs/background_jobs_errors.log'));
+        throw new Exception("Class '$className' is not allowed.");
+    }
+
     // Check if the class exists
     if (!class_exists($className)) {
+        writeLogMessage('ERROR: Class ' . $className . ' not found.', storage_path('logs/background_jobs_errors.log'));
         throw new Exception("Class '$className' not found.");
+    }
+
+    // Validate the method name
+    if (!in_array($methodName, $allowedJobs[$className])) {
+        writeLogMessage('ERROR: Method ' . $methodName . ' is not allowed for class ' . $className, storage_path('logs/background_jobs_errors.log'));
+        throw new Exception("Method '$methodName' is not allowed for class '$className'.");
     }
 
     // Instantiate the class
@@ -43,6 +65,7 @@ try {
 
     // Check if the method exists
     if (!method_exists($instance, $methodName)) {
+        writeLogMessage('ERROR: Method ' . $methodName . ' not found.', storage_path('logs/background_jobs_errors.log'));
         throw new Exception("Method '$methodName' not found in class '$className'.");
     }
 
@@ -50,11 +73,11 @@ try {
     $result = call_user_func_array([$instance, $methodName], $params);
 
     // Log success
-    logMessage("SUCCESS: Executed $className::$methodName with params [" . implode(', ', $params) . "]", $logFile);
+    writeLogMessage("SUCCESS: Executed $className::$methodName with params [" . implode(', ', $params) . "]", storage_path('logs/background_jobs.log'));
     echo "Job executed successfully.\n";
 
 } catch (Exception $e) {
     // Log failure
-    logMessage("FAILURE: " . $e->getMessage(), $logFile);
+    writeLogMessage("FAILURE: " . $e->getMessage(), storage_path('logs/background_jobs_errors.log'));
     echo "Job execution failed: " . $e->getMessage() . "\n";
 }
