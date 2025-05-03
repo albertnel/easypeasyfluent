@@ -1,5 +1,8 @@
 <?php
 
+use App\Models\BackgroundJob;
+use Carbon\Carbon;
+
 // Autoload classes using Composer
 $autoloadPath = dirname(__DIR__) . '/vendor/autoload.php';
 if (!file_exists($autoloadPath)) {
@@ -40,6 +43,8 @@ if (!preg_match('/^[A-Za-z0-9_]+$/', $methodName)) {
 
 // Load allowed jobs from the configuration file
 $allowedJobs = config('background-jobs.allowed_jobs');
+$retryInterval = config('background-jobs.retry_interval', 5);
+$maxRetries = config('background-jobs.max_retries', 5);
 
 try {
     // Validate the class name
@@ -60,6 +65,34 @@ try {
         throw new Exception("Method '$methodName' is not allowed for class '$className'.");
     }
 
+        // Check if the job already exists
+    $job = BackgroundJob::where('class', $className)
+        ->where('method', $methodName)
+        ->where('parameters', json_encode($params))
+        ->first();
+
+    if (!$job) {
+        // Create a new job entry
+        $job = BackgroundJob::create([
+            'class' => $className,
+            'method' => $methodName,
+            'parameters' => json_encode($params),
+            'status' => 'running',
+        ]);
+    } elseif ($job->status === 'failed' && $job->retry_count < $maxRetries) {
+        // Retry a failed job
+        if ($job->next_retry_at && $job->next_retry_at->isFuture()) {
+            throw new Exception("Job is scheduled to retry at {$job->next_retry_at}.");
+        }
+
+        $job->update([
+            'status' => 'running',
+            'retry_count' => $job->retry_count + 1,
+        ]);
+    } else {
+        throw new Exception("Job cannot be retried. Maximum retries reached or job is already running.");
+    }
+
     // Instantiate the class
     $instance = new $className();
 
@@ -72,11 +105,22 @@ try {
     // Execute the method with parameters
     $result = call_user_func_array([$instance, $methodName], $params);
 
+    // Mark the job as successful
+    $job->update(['status' => 'success']);
+
     // Log success
     writeLogMessage("SUCCESS: Executed $className::$methodName with params [" . implode(', ', $params) . "]", storage_path('logs/background_jobs.log'));
     echo "Job executed successfully.\n";
 
 } catch (Exception $e) {
+    // Mark the job as failed and schedule a retry
+    if (isset($job)) {
+        $job->update([
+            'status' => 'failed',
+            'next_retry_at' => Carbon::now()->addMinutes($retryInterval),
+        ]);
+    }
+
     // Log failure
     writeLogMessage("FAILURE: " . $e->getMessage(), storage_path('logs/background_jobs_errors.log'));
     echo "Job execution failed: " . $e->getMessage() . "\n";
