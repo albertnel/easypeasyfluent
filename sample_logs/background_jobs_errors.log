@@ -1,0 +1,16 @@
+[2025-05-03 07:53:09] SUCCESS: Executed App\Services\UserSeederService::seedUsers with params [21]
+[2025-05-03 09:07:01] ERROR: Class AppServicesUserSeederService is not allowed.
+[2025-05-03 09:07:03] FAILURE: Class 'AppServicesUserSeederService' is not allowed.
+[2025-05-04 07:33:29] ERROR: Method seedUsersBreak is not allowed for class App\Services\UserSeederService
+[2025-05-04 07:33:29] FAILURE: Method 'seedUsersBreak' is not allowed for class 'App\Services\UserSeederService'.
+[2025-05-04 07:46:05] ERROR: Class AppServicesUserSeederService is not allowed.
+[2025-05-04 07:46:05] FAILURE: Class 'AppServicesUserSeederService' is not allowed.
+[2025-05-04 07:50:56] ERROR: Method seedUsersBreak is not allowed for class App\Services\UserSeederService
+[2025-05-04 07:50:56] FAILURE: Method 'seedUsersBreak' is not allowed for class 'App\Services\UserSeederService'.
+[2025-05-04 08:07:26] FAILURE: SQLSTATE[23000]: Integrity constraint violation: 19 UNIQUE constraint failed: users.email (Connection: sqlite, SQL: insert into "users" ("name", "email", "password", "updated_at", "created_at") values (Xavier, yvonne87@example.net, $2y$12$J4mTr8JYCiyIQj7iq.omFOeYlMxaMhaePkt2FxjVNIE8WmUkze/wa, 2025-05-04 08:07:26, 2025-05-04 08:07:26))
+[2025-05-04 08:14:45] FAILURE: Job cannot be retried. Maximum retries reached or job is already running.
+[2025-05-04 14:03:13] FAILURE: Job cannot be retried. Maximum retries reached or job is already running.
+[2025-05-04 14:03:39] FAILURE: Job is scheduled to retry at 2025-05-04 14:08:13.
+[2025-05-04 14:27:45] FAILURE: Job cannot be retried. Maximum retries reached or job is already running.
+[2025-05-04 14:28:14] FAILURE: Job is scheduled to retry at 2025-05-04 14:32:45.
+[2025-05-04 14:29:19] FAILURE: Job is scheduled to retry at 2025-05-04 14:33:14.
