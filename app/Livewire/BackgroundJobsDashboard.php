@@ -15,9 +15,12 @@ class BackgroundJobsDashboard extends Component
     public $sortField = 'id'; // Default sort field
     public $sortDirection = 'desc'; // Default sort direction
 
-    public function updatingSearch()
+    // Reset pagination when search or statusFilter changes
+    public function updated($propertyName)
     {
-        $this->resetPage(); // Reset pagination when search changes
+        if (in_array($propertyName, ['search', 'statusFilter'])) {
+            $this->resetPage(); // Reset pagination to page 1
+        }
     }
 
     public function sortBy($field)
