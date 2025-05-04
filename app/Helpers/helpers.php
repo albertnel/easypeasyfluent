@@ -30,7 +30,7 @@ if (!function_exists('runBackgroundJob')) {
      */
     function runBackgroundJob($class, $method, $params = [], $delay = null)
     {
-        $phpBinary = config('easypeasyfluent.php_binary');
+        $phpBinary = config('background-jobs.php_binary');
         if (!$phpBinary) {
             $errorMessage = 'PHP binary path is not configured.';
             writeLogMessage('ERROR: ' . $errorMessage, storage_path('logs/background_jobs_errors.log'));
