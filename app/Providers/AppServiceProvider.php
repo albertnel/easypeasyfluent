@@ -13,12 +13,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // Merge the custom config file
-        $this->mergeConfigFrom(
-            config_path('easypeasyfluent.php'),
-            'easypeasyfluent'
-        );
-
         // Merge the background jobs config file
         $this->mergeConfigFrom(
             config_path('background-jobs.php'),

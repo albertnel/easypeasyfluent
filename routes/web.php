@@ -5,6 +5,8 @@ use App\Livewire\Settings\Password;
 use App\Livewire\Settings\Profile;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
+use App\Livewire\BackgroundJobsDashboard;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,5 +25,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/seed-users', [UserController::class, 'seedUsers']);
+
+Route::get('/background-jobs', BackgroundJobsDashboard::class)->name('background-jobs.dashboard');
 
 require __DIR__.'/auth.php';
