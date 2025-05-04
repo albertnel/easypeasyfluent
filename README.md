@@ -121,10 +121,13 @@ A few important security features were created and implemented.
 2. All inputs are properly sanitized.
 3. There are class and method validations done on both the class name and method name.
 
-### Priority Handling
-<!-- Explain how priority handling works, if implemented. -->
-
 ### Testing and Logs
+
+To test, I created a controller that simply seeds some users to the database. If you run the project via Herd, you can access it as follows:
+
+http://easypeasyfluent.test/seed-users?count=21
+
+Of course, just replace the easypeasyfluent.test domain with your local one.
 
 The following logs have been created:
 
