@@ -51,7 +51,6 @@
                         <span>{{ $sortDirection === 'asc' ? '↑' : '↓' }}</span>
                     @endif
                 </th>
-                <th class="px-4 py-2 border">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -63,9 +62,6 @@
                     <td class="px-4 py-2 border">{{ $job->method }}</td>
                     <td class="px-4 py-2 border">{{ ucfirst($job->status) }}</td>
                     <td class="px-4 py-2 border">{{ $job->created_at->format('Y-m-d H:i:s') }}</td>
-                    <td class="px-4 py-2 border">
-                        <button wire:click="retryJob({{ $job->id }})" class="text-blue-500 hover:underline">Retry</button>
-                    </td>
                 </tr>
             @empty
                 <tr>
