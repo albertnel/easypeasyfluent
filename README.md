@@ -83,6 +83,12 @@ runBackgroundJob(
 );
 ```
 
+You can also run the script directly from the terminal. Example:
+
+```bash
+<php-binary-path> '<easypeasyfluent-project-path>/scripts/run-job.php' 'App\Services\UserSeederService' seedUsers 2 60
+```
+
 ### Retry Attempts
 
 From `config/background-jobs.php` you'll find a globally accesible config value:
@@ -137,6 +143,7 @@ The following logs have been created:
 I've also added sample populated logs I generated during my testing. It can be found in the folder `sample_logs`.
 
 ## Bonus Points
-
-- I'm happy to report that I implemented the call of the background process using Symfony/Process.
-- I implemented try/catch with exception handling (specific and finally general type exceptions) in every place where execution starts and might throw an error.
+- ✅ I'm happy to report that I implemented the call of the background process using Symfony/Process.
+- ✅ I implemented try/catch with exception handling (specific and finally general type exceptions) in every place where execution starts and might throw an error.
+- ✅ Job delays
+- ✅ Job priorities
