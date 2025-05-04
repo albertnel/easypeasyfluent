@@ -25,6 +25,7 @@ $className = $argv[1];
 $methodName = $argv[2];
 $params = isset($argv[3]) ? array_map('trim', explode(',', trim($argv[3], '"'))) : [];
 $delay = isset($argv[4]) ? (int)$argv[4] : null;
+$priority = isset($argv[5]) ? (int)$argv[5] : 10;
 
 // Log the class name, method name, and parameters
 writeLogMessage(
@@ -52,6 +53,12 @@ if (!preg_match('/^[A-Za-z0-9_]+$/', $methodName)) {
 if ($delay !== null && !is_int($delay)) {
     writeLogMessage('ERROR: Delay must be an integer.', storage_path('logs/background_jobs_errors.log'));
     throw new Exception("Invalid delay value. Delay must be an integer.");
+}
+
+// Validate priority is an integer if provided
+if ($priority !== null && !is_int($priority)) {
+    writeLogMessage('ERROR: Priority must be an integer.', storage_path('logs/background_jobs_errors.log'));
+    throw new Exception("Invalid priority value. Priority must be an integer.");
 }
 
 // Load allowed jobs from the configuration file
@@ -82,6 +89,7 @@ try {
     $job = BackgroundJob::where('class', $className)
         ->where('method', $methodName)
         ->where('parameters', '"' . implode(',', $params) . '"')
+        ->where('priority', $priority)
         ->orderBy('created_at', 'desc')
         ->first();
 
@@ -91,6 +99,7 @@ try {
             'class' => $className,
             'method' => $methodName,
             'parameters' => implode(',', $params),
+            'priority' => $priority,
         ];
 
         if ($delay !== null) {

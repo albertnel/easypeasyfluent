@@ -28,7 +28,7 @@ if (!function_exists('runBackgroundJob')) {
      * @param array $params Parameters to pass to the method.
      * @return void
      */
-    function runBackgroundJob($class, $method, $params = [], $delay = null)
+    function runBackgroundJob($class, $method, $params = [], $delay = null, $priority = 10)
     {
         $phpBinary = config('background-jobs.php_binary');
         if (!$phpBinary) {
@@ -45,6 +45,7 @@ if (!function_exists('runBackgroundJob')) {
             $method,
             $paramString,
             $delay ? $delay : '',
+            $priority
         ];
 
         writeLogMessage('RUNNING: ' . implode(' ', $command), storage_path('logs/background_jobs.log'));
