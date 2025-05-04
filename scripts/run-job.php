@@ -24,6 +24,7 @@ if ($argc < 3) {
 $className = $argv[1];
 $methodName = $argv[2];
 $params = isset($argv[3]) ? array_map('trim', explode(',', trim($argv[3], '"'))) : [];
+$delay = isset($argv[4]) ? (int)$argv[4] : null;
 
 // Log the class name, method name, and parameters
 writeLogMessage(
@@ -45,6 +46,12 @@ if (!preg_match('/^[A-Za-z0-9\\\\]+$/', $className)) {
 if (!preg_match('/^[A-Za-z0-9_]+$/', $methodName)) {
     writeLogMessage('ERROR: Invalid method name format: ' . $methodName, storage_path('logs/background_jobs_errors.log'));
     throw new Exception("Invalid method name format: '$methodName'.");
+}
+
+// Validate delay is an integer if provided
+if ($delay !== null && !is_int($delay)) {
+    writeLogMessage('ERROR: Delay must be an integer.', storage_path('logs/background_jobs_errors.log'));
+    throw new Exception("Invalid delay value. Delay must be an integer.");
 }
 
 // Load allowed jobs from the configuration file
@@ -80,13 +87,43 @@ try {
 
     if (!$job || $job->status === 'success') {
         // If no job exists or the last job was successful, create a new job
-        $job = BackgroundJob::create([
+        $jobData = [
             'class' => $className,
             'method' => $methodName,
             'parameters' => implode(',', $params),
-            'status' => 'running',
-        ]);
-    } elseif ($job->status === 'failed' && $job->retry_count < $maxRetries) {
+        ];
+
+        if ($delay !== null) {
+            // If delay is specified, set status to "pending" and calculate next_retry_at
+            $jobData['status'] = 'pending';
+            $jobData['next_retry_at'] = Carbon::now()->addSeconds($delay);
+        } else {
+            // Otherwise, set status to "running"
+            $jobData['status'] = 'running';
+        }
+
+        $job = BackgroundJob::create($jobData);
+
+        if ($jobData['status'] === 'pending') {
+            writeLogMessage("INFO: Job scheduled as pending. Exiting script.", storage_path('logs/background_jobs.log'));
+            echo "Job scheduled as pending. Exiting script.\n";
+            exit(0);
+        }
+    } elseif ($job->status === 'pending') {
+        // If the job is pending, check if it's time to run it
+        if ($job->next_retry_at && $job->next_retry_at->isPast()) {
+            $job->update(['status' => 'running']);
+        } else {
+            writeLogMessage("INFO: Job is still pending. Exiting script.", storage_path('logs/background_jobs.log'));
+            echo "Job is still pending. Exiting script.\n";
+            exit(0);
+        }
+    } elseif ($job->status === 'running') {
+        // Job is already running
+        writeLogMessage("ERROR: Job is already running.", storage_path('logs/background_jobs_errors.log'));
+        throw new Exception("Job is already running.");
+    }
+    elseif ($job->status === 'failed' && $job->retry_count < $maxRetries) {
         // Retry a failed job
         if ($job->next_retry_at && $job->next_retry_at->isFuture()) {
             throw new Exception("Job is scheduled to retry at {$job->next_retry_at}.");
