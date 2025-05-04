@@ -5,15 +5,15 @@
 2. [Setup and Installation](#setup-and-installation)
 3. [Usage](#usage)
     - [Using the `runBackgroundJob` Function](#using-the-runbackgroundjob-function)
-4. [Configuration](#configuration)
+4. [Features](#features)
     - [Retry Attempts](#retry-attempts)
     - [Delays](#delays)
     - [Job Priorities](#job-priorities)
-    - [Security Settings](#security-settings)
-5. [Optional and Advanced Features](#optional-and-advanced-features)
-    - [Priority Handling](#priority-handling)
-6. [Assumptions and Limitations](#assumptions-and-limitations)
-7. [Potential Improvements](#potential-improvements)
+    - [Dashboard](#dashboard)
+    - [Security](#security)
+    - [Testing and Logs](#testing-and-logs)
+5. [Bonus Points](#bonus-points)
+
 
 ## Introduction
 
@@ -88,6 +88,8 @@ You can also run the script directly from the terminal. Example:
 ```bash
 <php-binary-path> '<easypeasyfluent-project-path>/scripts/run-job.php' 'App\Services\UserSeederService' seedUsers 2 60
 ```
+
+## Features
 
 ### Retry Attempts
 
