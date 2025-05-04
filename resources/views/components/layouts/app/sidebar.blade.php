@@ -17,6 +17,14 @@
                 </flux:navlist.group>
             </flux:navlist>
 
+            <flux:navlist.item 
+                icon="briefcase" 
+                :href="route('background-jobs.dashboard')" 
+                :current="request()->routeIs('background-jobs.dashboard')" 
+                wire:navigate>
+                {{ __('Background Jobs') }}
+            </flux:navlist.item>
+
             <flux:spacer />
 
             <flux:navlist variant="outline">
