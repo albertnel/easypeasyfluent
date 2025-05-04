@@ -83,7 +83,13 @@ runBackgroundJob(
 ```
 
 ### Retry Attempts
-<!-- Steps to configure retry attempts. -->
+
+From `config/background-jobs.php` you'll find a globally accesible config value:
+```php
+config('background-jobs.retry_interval');
+```
+
+This values specifies, in minutes, when to schedule the next retry of a failed job. Minutes was chosen to adhere to the smallest timeframe you can schedule cron jobs on, in case background tasks was eventually moved to a cron schedule.
 
 ### Delays
 Delay of execution is supported as an optional 4th parameter when calling the helper function `runBackgroundJob()`. This delays execution to only happen when the time is past `next_retry_at` datetime as stored in the `background_jobs` database table for the particular record.
