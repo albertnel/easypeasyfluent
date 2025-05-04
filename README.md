@@ -134,6 +134,8 @@ The following logs have been created:
 - `storage/logs/background_jobs.log` - contains information about the starting, running and completion of jobs.
 - `storage/logs/background_jobs_errors.log` - contains all errors encountered during execution of the background job.
 
+I've also added sample populated logs I generated during my testing. It can be found in the folder `sample_logs`.
+
 ## Bonus Points
 
 - I'm happy to report that I implemented the call of the background process using Symfony/Process.
