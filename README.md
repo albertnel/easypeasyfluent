@@ -119,6 +119,12 @@ runBackgroundJob(
 );
 ```
 
+### Dashboard
+
+A dashboard has been created where you can see all the background jobs and their statuses.
+
+To view it, please register for a new account by going to `/register`. After registration you'll be logged in. When logged in you'll see a link on the left sidebar called Background Jobs.
+
 ### Security
 
 A few important security features were created and implemented.
@@ -147,3 +153,4 @@ I've also added sample populated logs I generated during my testing. It can be f
 - ✅ I implemented try/catch with exception handling (specific and finally general type exceptions) in every place where execution starts and might throw an error.
 - ✅ Job delays
 - ✅ Job priorities
+- ✅ Basic dashboard

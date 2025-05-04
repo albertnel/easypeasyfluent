@@ -22,10 +22,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('settings/profile', Profile::class)->name('settings.profile');
     Route::get('settings/password', Password::class)->name('settings.password');
     Route::get('settings/appearance', Appearance::class)->name('settings.appearance');
+    Route::get('/background-jobs', BackgroundJobsDashboard::class)->name('background-jobs.dashboard');
 });
 
 Route::get('/seed-users', [UserController::class, 'seedUsers']);
-
-Route::get('/background-jobs', BackgroundJobsDashboard::class)->name('background-jobs.dashboard');
 
 require __DIR__.'/auth.php';
