@@ -59,6 +59,7 @@ runBackgroundJob(
 - **$methodName**: The method within the class to be called.
 - **$parameters**: (Optional) An array of parameters to pass to the method.
 - **$delay**: (Optional) Delay execution of the job in second.
+- **$priority**: (Optional) Priority of the job, integer.
 
 #### Example:
 
@@ -95,7 +96,22 @@ This values specifies, in minutes, when to schedule the next retry of a failed j
 Delay of execution is supported as an optional 4th parameter when calling the helper function `runBackgroundJob()`. This delays execution to only happen when the time is past `next_retry_at` datetime as stored in the `background_jobs` database table for the particular record.
 
 ### Job Priorities
-<!-- Steps to configure job priorities. -->
+
+Job priority is introduced as an optional 5th parameter of the global helper function `runBackgroundJob()`.
+
+This specifies the order of priority to place a new job in and on successive retrievals of multiple jobs, all jobs will be sorted by priority first so that they run according to priority and not simply by created_at date.
+
+Example to create a new job and set it to priority 2.
+
+```php
+runBackgroundJob(
+    'App\Services\UserSeederService',
+    'seedUsers',
+    ['10'],
+    60,
+    2
+);
+```
 
 ### Security
 
