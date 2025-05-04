@@ -12,7 +12,7 @@ class BackgroundJobsDashboard extends Component
 
     public $search = ''; // For filtering jobs by class or method
     public $statusFilter = ''; // For filtering jobs by status
-    public $sortField = 'priority'; // Default sort field
+    public $sortField = 'id'; // Default sort field
     public $sortDirection = 'desc'; // Default sort direction
 
     public function updatingSearch()
