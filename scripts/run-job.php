@@ -90,6 +90,7 @@ try {
         ->where('method', $methodName)
         ->where('parameters', '"' . implode(',', $params) . '"')
         ->where('priority', $priority)
+        ->orderBy('priority', 'desc') // Higher priority first
         ->orderBy('created_at', 'desc')
         ->first();
 
