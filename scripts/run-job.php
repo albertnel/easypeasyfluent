@@ -25,8 +25,14 @@ $className = $argv[1];
 $methodName = $argv[2];
 $params = isset($argv[3]) ? array_map('trim', explode(',', trim($argv[3], '"'))) : [];
 
+// Log the class name, method name, and parameters
+writeLogMessage(
+    "INFO: Received job request - Class: $className, Method: $methodName, Params: " . json_encode($params),
+    storage_path('logs/background_jobs.log')
+);
+
 // Sanitize inputs
-$className = filter_var($className, FILTER_SANITIZE_SPECIAL_CHARS);
+$className = filter_var($className, FILTER_SANITIZE_STRING);
 $methodName = filter_var($methodName, FILTER_SANITIZE_SPECIAL_CHARS);
 
 // Validate class name format
@@ -65,18 +71,19 @@ try {
         throw new Exception("Method '$methodName' is not allowed for class '$className'.");
     }
 
-        // Check if the job already exists
+    // Check if the job already exists
     $job = BackgroundJob::where('class', $className)
         ->where('method', $methodName)
-        ->where('parameters', json_encode($params))
+        ->where('parameters', '"' . implode(',', $params) . '"')
+        ->orderBy('created_at', 'desc')
         ->first();
 
-    if (!$job) {
-        // Create a new job entry
+    if (!$job || $job->status === 'success') {
+        // If no job exists or the last job was successful, create a new job
         $job = BackgroundJob::create([
             'class' => $className,
             'method' => $methodName,
-            'parameters' => json_encode($params),
+            'parameters' => implode(',', $params),
             'status' => 'running',
         ]);
     } elseif ($job->status === 'failed' && $job->retry_count < $maxRetries) {
