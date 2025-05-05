@@ -125,6 +125,13 @@ runBackgroundJob(
 
 A dashboard has been created where you can see all the background jobs and their statuses.
 
+I created two files for this.
+
+1. Livewire component: `app/Livewire/BackgroundJobsDashboard.php` 
+2. Liveware and blade template: `resources/views/livewire/background-jobs-dashboard.blade.php`
+
+I opted to just do this with Livewire as it's nice and easy, however I am perfectly comfortable to have done it with Vue.js or React.js as well.
+
 To view it, please register for a new account by going to `/register`. After registration you'll be logged in. When logged in you'll see a link on the left sidebar called Background Jobs.
 
 ### Security
